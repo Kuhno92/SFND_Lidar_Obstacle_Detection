@@ -42,12 +42,20 @@ template<typename PointT>
 std::pair<typename pcl::PointCloud<PointT>::Ptr, typename pcl::PointCloud<PointT>::Ptr> ProcessPointClouds<PointT>::SeparateClouds(pcl::PointIndices::Ptr inliers, typename pcl::PointCloud<PointT>::Ptr cloud) 
 {
   // TODO: Create two new point clouds, one cloud with obstacles and other with segmented plane
-  //    pcl::ExtractIndices<PointT> extract;
-        //extract.setInputCloud(cloud);
-        //extract.setIndices(inliers);
-        //extract.setNegative(false);
-        //extract.filter(cloud_p);
-    std::pair<typename pcl::PointCloud<PointT>::Ptr, typename pcl::PointCloud<PointT>::Ptr> segResult(cloud, cloud);
+  
+    typename pcl::PointCloud<PointT>::Ptr cloud_obstacle(new pcl::PointCloud<PointT>());
+  	typename pcl::PointCloud<PointT>::Ptr cloud_plane(new pcl::PointCloud<PointT>());
+  
+  	for (auto i : inliers->indices){
+   		cloud_plane->points.push_back(cloud->points[i]);
+    }
+  
+  	pcl::ExtractIndices<PointT> extract;
+  	extract.setInputCloud(cloud);
+  	extract.setIndices(inliers);
+  	extract.setNegative(true);
+  	extract.filter(*cloud_obstacle);
+    std::pair<typename pcl::PointCloud<PointT>::Ptr, typename pcl::PointCloud<PointT>::Ptr> segResult(cloud_obstacle, cloud_plane);
     return segResult;
 }
 
@@ -59,9 +67,6 @@ std::pair<typename pcl::PointCloud<PointT>::Ptr, typename pcl::PointCloud<PointT
     auto startTime = std::chrono::steady_clock::now();
 	pcl::PointIndices::Ptr inliers (new pcl::PointIndices());
     // TODO:: Fill in this function to find inliers for the cloud.
-
-    // processed cloud:
-    typename pcl::PointCloud<PointT>::Ptr cloud_p;
 
     // segmentaiton object:
     pcl::ModelCoefficients::Ptr coefficients (new pcl::ModelCoefficients());
