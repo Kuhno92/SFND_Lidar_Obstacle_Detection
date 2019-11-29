@@ -3,6 +3,8 @@
 
 #include "../../render/render.h"
 #include <unordered_set>
+#include <cstdlib>
+#include <stdlib.h>
 #include "../../processPointClouds.h"
 // using templates for processPointClouds so also include .cpp to help linker
 #include "../../processPointClouds.cpp"
@@ -76,6 +78,32 @@ std::unordered_set<int> Ransac(pcl::PointCloud<pcl::PointXYZ>::Ptr cloud, int ma
 	// If distance is smaller than threshold count it as inlier
 
 	// Return indicies of inliers from fitted line with most inliers
+	for (int j = 0; j < maxIterations; j++){
+		std::unordered_set<int> tmp_inliersResult;
+		int first_index = rand() % cloud->size();
+		int second_index = rand() % cloud->size();
+
+		pcl::PointXYZ first_point = cloud->points[first_index];
+		pcl::PointXYZ second_point = cloud->points[second_index];
+
+		int A = first_point.y - second_point.y;
+		int B = second_point.x - first_point.x;
+		int C = first_point.x * second_point.y - second_point.x - first_point.y;
+
+		for(int i = 0; i < cloud->size(); i++){
+			float d = abs(A*cloud->at(i).x + B*cloud->at(i).y + C)/ std::sqrt(A*A + B*B);
+			if (d <= distanceTol){
+				tmp_inliersResult.insert(i);
+			}
+		}
+		if (tmp_inliersResult.size() > inliersResult.size()) {
+			inliersResult.clear();
+			std::swap(inliersResult, tmp_inliersResult);
+			tmp_inliersResult.clear();
+		} else {
+			tmp_inliersResult.clear();
+		}
+	}
 	
 	return inliersResult;
 
@@ -92,7 +120,7 @@ int main ()
 	
 
 	// TODO: Change the max iteration and distance tolerance arguments for Ransac function
-	std::unordered_set<int> inliers = Ransac(cloud, 0, 0);
+	std::unordered_set<int> inliers = Ransac(cloud, 200, 0.5);
 
 	pcl::PointCloud<pcl::PointXYZ>::Ptr  cloudInliers(new pcl::PointCloud<pcl::PointXYZ>());
 	pcl::PointCloud<pcl::PointXYZ>::Ptr cloudOutliers(new pcl::PointCloud<pcl::PointXYZ>());

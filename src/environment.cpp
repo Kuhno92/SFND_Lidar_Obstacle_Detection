@@ -26,9 +26,9 @@ std::vector<Car> initHighway(bool renderScene, pcl::visualization::PCLVisualizer
     {
         renderHighway(viewer);
         egoCar.render(viewer);
-        car1.render(viewer);
-        car2.render(viewer);
-        car3.render(viewer);
+        //car1.render(viewer);
+        //car2.render(viewer);
+        //car3.render(viewer);
     }
 
     return cars;
@@ -56,8 +56,8 @@ void simpleHighway(pcl::visualization::PCLVisualizer::Ptr& viewer)
 
         // render rays
     //renderRays(viewer, lidar->position, pointCloud);
-    renderPointCloud(viewer, segmentCloud.first, "Plane", Color(0,1,0));
-    renderPointCloud(viewer, segmentCloud.second, "Obstacle", Color(1,0,0));
+    renderPointCloud(viewer, segmentCloud.first, "Plane", Color(1,0,0));
+    renderPointCloud(viewer, segmentCloud.second, "Obstacle", Color(0,1,0));
   
 }
 
